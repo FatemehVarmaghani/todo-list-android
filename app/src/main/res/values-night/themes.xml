@@ -1,0 +1,20 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Todo" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <item name="colorPrimary">@color/black_light</item>
+        <item name="colorSecondary">@color/black_light</item>
+        <item name="backgroundColor">@color/gray_dark</item>
+        <item name="colorPrimaryContainer">@color/almost_gray_dark</item>
+
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnBackground">@color/white</item>
+        <item name="colorOnSecondary">@color/grey</item>
+
+        <item name="colorSurface">@color/grey</item>
+        <item name="colorOnSurface">@color/gray_dark</item>
+
+        <item name="fontFamily">@font/primary_regular</item>
+
+    </style>
+</resources>

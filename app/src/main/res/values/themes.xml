@@ -1,0 +1,22 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Todo" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <item name="colorPrimary">@color/red</item>
+        <item name="colorSecondary">@color/pink</item>
+        <item name="backgroundColor">@color/white</item>
+        <item name="colorPrimaryContainer">@color/almost_white</item>
+
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnBackground">@color/black_light</item>
+        <item name="colorOnSecondary">@color/gray</item>
+
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/grey</item>
+
+        <item name="fontFamily">@font/primary_regular</item>
+
+    </style>
+
+    <style name="Theme.Todo" parent="Base.Theme.Todo" />
+</resources>
