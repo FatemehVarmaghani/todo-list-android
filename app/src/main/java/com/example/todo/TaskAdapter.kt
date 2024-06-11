@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.todo.databinding.ItemTaskBinding
 
-class TaskAdapter(private val data: ArrayList<Task>) :
+class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: ItemEvent) :
     RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     inner class TaskViewHolder(private val binding: ItemTaskBinding, private val context: Context) :
@@ -21,8 +21,17 @@ class TaskAdapter(private val data: ArrayList<Task>) :
                 binding.itemCheckBox.isChecked = true
             }
 
-            Glide.with(context).load(getImageUrl(data[position].category))
+            Glide.with(context).load(getImageSrc(data[position].category))
                 .into(binding.imgItemIcon)
+
+            binding.itemCheckBox.setOnCheckedChangeListener { _, isChecked ->
+                itemEvent.itemCheckBoxChanged(data[adapterPosition].id, isChecked)
+                if (itemEvent.listIsAll()) {
+                } else {
+                    removeTask(adapterPosition)
+                }
+            }
+
         }
 
     }
@@ -40,18 +49,28 @@ class TaskAdapter(private val data: ArrayList<Task>) :
         holder.bindData(position)
     }
 
-    private fun getImageUrl(category: String): String {
+    private fun getImageSrc(category: String): Int {
         return when (category) {
-            EDUCATION -> "https://cdn-icons-png.flaticon.com/128/4341/4341050.png"
-            WORK -> "https://cdn-icons-png.flaticon.com/128/4341/4341041.png"
-            HEALTH -> "https://cdn-icons-png.flaticon.com/128/3461/3461986.png"
-            FITNESS -> "https://cdn-icons-png.flaticon.com/128/7890/7890362.png"
-            HOBBY -> "https://cdn-icons-png.flaticon.com/128/7890/7890396.png"
-            RELAX -> "https://cdn-icons-png.flaticon.com/128/4216/4216203.png"
-            CHORES -> "https://cdn-icons-png.flaticon.com/128/4216/4216231.png"
-            HYGIENE -> "https://cdn-icons-png.flaticon.com/128/4216/4216191.png"
-            else -> "https://cdn-icons-png.flaticon.com/128/4341/4341131.png"
+            EDUCATION -> R.drawable.img_education
+            WORK -> R.drawable.img_work
+            HEALTH -> R.drawable.img_health
+            FITNESS -> R.drawable.img_fitness
+            HOBBY -> R.drawable.img_hobby
+            RELAX -> R.drawable.img_relax
+            CHORES -> R.drawable.img_chores
+            HYGIENE -> R.drawable.img_hygiene
+            else -> R.drawable.img_education
         }
+    }
+
+    private fun removeTask(position: Int) {
+        data.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+    interface ItemEvent {
+        fun itemCheckBoxChanged(taskId: String, newValue: Boolean)
+        fun listIsAll(): Boolean
     }
 
 }
