@@ -4,7 +4,7 @@ data class Task(
     var title: String,
     val id: String,
     var description: String,
-    var dueDate: Long,
+    var dueDate: String,
     var isCompleted: Boolean,
     var category: String
 )

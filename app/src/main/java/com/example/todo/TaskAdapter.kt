@@ -1,6 +1,7 @@
 package com.example.todo
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -15,21 +16,29 @@ class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: Item
 
         fun bindData(position: Int) {
             binding.txtItemTitle.text = data[position].title
-            binding.txtItemDueDate.text = "May 29, 2024"
+            binding.txtItemDueDate.text = data[position].dueDate
 
             if (data[position].isCompleted) {
                 binding.itemCheckBox.isChecked = true
             }
 
+            Log.v("testing", data[position].category)
             Glide.with(context).load(getImageSrc(data[position].category))
                 .into(binding.imgItemIcon)
+            Log.v("testing", getImageSrc(data[position].category).toString())
 
             binding.itemCheckBox.setOnCheckedChangeListener { _, isChecked ->
                 itemEvent.itemCheckBoxChanged(data[adapterPosition].id, isChecked)
                 if (itemEvent.listIsAll()) {
+                    //notifyItemChanged()
                 } else {
                     removeTask(adapterPosition)
                 }
+            }
+
+            itemView.setOnLongClickListener {
+                itemEvent.onItemLongClicked(data[adapterPosition], adapterPosition)
+                true
             }
 
         }
@@ -68,9 +77,16 @@ class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: Item
         notifyItemRemoved(position)
     }
 
+    fun editTask(position: Int, newTask: Task) {
+        data[position] = newTask
+        notifyItemChanged(position)
+    }
+
     interface ItemEvent {
         fun itemCheckBoxChanged(taskId: String, newValue: Boolean)
         fun listIsAll(): Boolean
+
+        fun onItemLongClicked(task: Task, position: Int)
     }
 
 }
