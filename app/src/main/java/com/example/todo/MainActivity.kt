@@ -6,6 +6,7 @@ import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.ULocale
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -13,14 +14,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todo.databinding.ActivityMainBinding
+import com.example.todo.databinding.DialogAddTaskBinding
 import com.example.todo.databinding.DialogEditTaskBinding
 
 class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var edtDialogBinding: DialogEditTaskBinding
+    private lateinit var dialogEditBinding: DialogEditTaskBinding
+    private lateinit var dialogAddBinding: DialogAddTaskBinding
     private lateinit var taskAdapter: TaskAdapter
     private lateinit var taskList: ArrayList<Task>
+    private var freeId = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,10 +32,14 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         setContentView(binding.root)
 
         initData()
-        setRecycler(taskList)
+        setRecycler(taskList.clone() as ArrayList<Task>)
 
         binding.radioGroupMain.setOnCheckedChangeListener { _, _ ->
             changeList()
+        }
+
+        binding.btnAddTask.setOnClickListener {
+            showAddDialog()
         }
 
     }
@@ -41,7 +49,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         taskList = arrayListOf(
             Task(
                 "wash the dishes",
-                "1",
+                createId(),
                 "dishes from lunch are still dirty",
                 "June 13, 2024",
                 true,
@@ -49,7 +57,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
             ),
             Task(
                 "homework",
-                "2",
+                createId(),
                 "do the homeworks from english class.",
                 "June 13, 2024",
                 true,
@@ -57,7 +65,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
             ),
             Task(
                 "upload project to github",
-                "3",
+                createId(),
                 "upload the project to github and write a nice readme for it.",
                 "June 13, 2024",
                 false,
@@ -65,7 +73,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
             ),
             Task(
                 "salad",
-                "4",
+                createId(),
                 "make a salad for dinner (don't use high fat sauce)",
                 "June 13, 2024",
                 false,
@@ -73,26 +81,26 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
             ),
             Task(
                 "workout",
-                "5",
+                createId(),
                 "10 lunges\n30 pushups\n10 crunches\n20 squats",
                 "June 13, 2024",
                 false,
                 FITNESS
             ),
-            Task("do the laundry", "6", "only the white clothes.", "June 13, 2024", false, CHORES),
+            Task("do the laundry", createId(), "only the white clothes.", "June 13, 2024", false, CHORES),
             Task(
                 "theme colors",
-                "7",
+                createId(),
                 "choose theme colors for new project.",
                 "June 13, 2024",
                 false,
                 WORK
             ),
-            Task("football", "8", "enjoy a game with your friends.", "June 13, 2024", false, HOBBY),
-            Task("wash bathroom", "9", "my weekly chore!", "June 13, 2024", false, CHORES),
+            Task("football", createId(), "enjoy a game with your friends.", "June 13, 2024", false, HOBBY),
+            Task("wash bathroom", createId(), "my weekly chore!", "June 13, 2024", false, CHORES),
             Task(
                 "take a shower",
-                "10",
+                createId(),
                 "definitely need it after football and washing the bathroom",
                 "June 13, 2024",
                 false,
@@ -131,7 +139,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
 
     private fun changeList() {
         when {
-            binding.radioBtnAll.isChecked -> setRecycler(taskList)
+            binding.radioBtnAll.isChecked -> setRecycler(taskList.clone() as ArrayList<Task>)
             binding.radioBtnPending.isChecked -> setRecycler(filterData(false))
             binding.radioBtnCompleted.isChecked -> setRecycler(filterData(true))
         }
@@ -150,39 +158,42 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
     }
 
     override fun onItemLongClicked(task: Task, position: Int) {
+        dialogEditBinding = DialogEditTaskBinding.inflate(layoutInflater)
         val dialog = AlertDialog.Builder(this)
-            .setView(R.layout.dialog_edit_task).create()
-        edtDialogBinding = DialogEditTaskBinding.inflate(layoutInflater)
+            .setView(dialogEditBinding.root).create()
 
-        edtDialogBinding.edtTitle.editText!!.setText(task.title)
-        edtDialogBinding.edtCategory.editText!!.setText(task.category)
-        edtDialogBinding.edtDescription.editText!!.setText(task.description)
-        edtDialogBinding.edtDate.editText!!.setText(task.dueDate)
+        dialogEditBinding.edtTitle.editText!!.setText(task.title)
+        dialogEditBinding.edtCategory.editText!!.setText(task.category)
+        dialogEditBinding.edtDescription.editText!!.setText(task.description)
+        dialogEditBinding.edtDate.editText!!.setText(task.dueDate)
 
-        dialog.setView(edtDialogBinding.root)
         dialog.show()
 
-        edtDialogBinding.edtCategory.setEndIconOnClickListener {
-            showCategoriesDialog(edtDialogBinding.edtCategory.editText!!)
+        dialogEditBinding.edtCategory.setEndIconOnClickListener {
+            showCategoriesDialog(dialogEditBinding.edtCategory.editText!!)
         }
 
-        edtDialogBinding.edtDate.setEndIconOnClickListener {
-            showCalendarDialog(edtDialogBinding.edtDate.editText!!)
+        dialogEditBinding.edtDate.setEndIconOnClickListener {
+            showCalendarDialog(dialogEditBinding.edtDate.editText!!)
         }
 
-        edtDialogBinding.btnEditCancel.setOnClickListener {
+        dialogEditBinding.btnEditCancel.setOnClickListener {
             dialog.dismiss()
         }
 
-        edtDialogBinding.btnEditDone.setOnClickListener {
-            if (editTextsAreFilled()) {
+        dialogEditBinding.btnEditDone.setOnClickListener {
+            if (dialogEditBinding.edtTitle.editText!!.text.isNotEmpty() &&
+                dialogEditBinding.edtCategory.editText!!.text.isNotEmpty() &&
+                dialogEditBinding.edtDate.editText!!.text.isNotEmpty() &&
+                dialogEditBinding.edtDescription.editText!!.text.isNotEmpty()
+            ) {
                 val newTask = Task(
-                    edtDialogBinding.edtTitle.editText!!.text.toString(),
+                    dialogEditBinding.edtTitle.editText!!.text.toString(),
                     task.id,
-                    edtDialogBinding.edtDescription.editText!!.text.toString(),
-                    edtDialogBinding.edtDate.editText!!.text.toString(),
+                    dialogEditBinding.edtDescription.editText!!.text.toString(),
+                    dialogEditBinding.edtDate.editText!!.text.toString(),
                     task.isCompleted,
-                    edtDialogBinding.edtCategory.editText!!.text.toString()
+                    dialogEditBinding.edtCategory.editText!!.text.toString()
                 )
 
                 editTask(position, newTask)
@@ -260,14 +271,76 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         return Triple(year, month, day)
     }
 
-    private fun editTextsAreFilled(): Boolean {
-        return edtDialogBinding.edtTitle.editText!!.text.isNotEmpty() &&
-                edtDialogBinding.edtDate.editText!!.text.isNotEmpty() &&
-                edtDialogBinding.edtDescription.editText!!.text.isNotEmpty()
-    }
-
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showAddDialog() {
+        dialogAddBinding = DialogAddTaskBinding.inflate(layoutInflater)
+        val dialog = AlertDialog.Builder(this).setView(dialogAddBinding.root).create()
+        dialog.show()
+
+        setCurrentDate(dialogAddBinding.addDate.editText!!)
+
+        dialogAddBinding.addCategory.setEndIconOnClickListener {
+            showCategoriesDialog(dialogAddBinding.addCategory.editText!!)
+        }
+
+        dialogAddBinding.addDate.setEndIconOnClickListener {
+            showCalendarDialog(dialogAddBinding.addDate.editText!!)
+        }
+
+        dialogAddBinding.btnAddTask.setOnClickListener {
+
+            if (dialogAddBinding.addTitle.editText!!.text.isNotEmpty() &&
+                dialogAddBinding.addCategory.editText!!.text.isNotEmpty() &&
+                dialogAddBinding.addDate.editText!!.text.isNotEmpty() &&
+                dialogAddBinding.addDescription.editText!!.text.isNotEmpty()) {
+
+                val newTask = Task(
+                    dialogAddBinding.addTitle.editText!!.text.toString(),
+                    createId(),
+                    dialogAddBinding.addDescription.editText!!.text.toString(),
+                    dialogAddBinding.addDate.editText!!.text.toString(),
+                    false,
+                    dialogAddBinding.addCategory.editText!!.text.toString()
+                )
+
+                addTask(newTask)
+                dialog.dismiss()
+
+            } else {
+                showToast("Fill all boxes!")
+            }
+
+        }
+
+        dialogAddBinding.btnAddCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+    }
+
+    private fun setCurrentDate(editText: EditText) {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        editText.setText(getFormattedDate(year, month, day).toString())
+    }
+
+    private fun createId(): String {
+        val newId = freeId
+        freeId++
+        return newId.toString()
+    }
+
+    private fun addTask(newTask: Task) {
+        if(!binding.radioBtnCompleted.isChecked) {
+            taskAdapter.addTask(newTask)
+            binding.recyclerMain.scrollToPosition(0)
+        }
+        taskList.add(0, newTask)
     }
 
 }

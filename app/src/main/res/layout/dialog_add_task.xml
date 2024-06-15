@@ -8,7 +8,7 @@
     android:padding="20dp">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/edt_title"
+        android:id="@+id/add_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Title">
@@ -21,7 +21,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/edt_category"
+        android:id="@+id/add_category"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -41,7 +41,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/edt_date"
+        android:id="@+id/add_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -60,7 +60,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/edt_description"
+        android:id="@+id/add_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -84,7 +84,7 @@
         android:weightSum="2">
 
         <Button
-            android:id="@+id/btn_edit_cancel"
+            android:id="@+id/btn_add_cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
@@ -94,14 +94,14 @@
             android:text="cancel" />
 
         <Button
-            android:id="@+id/btn_edit_done"
+            android:id="@+id/btn_add_task"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:layout_weight="1"
             android:backgroundTint="@color/blue"
-            android:text="done" />
+            android:text="add task" />
 
     </LinearLayout>
 

@@ -22,10 +22,8 @@ class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: Item
                 binding.itemCheckBox.isChecked = true
             }
 
-            Log.v("testing", data[position].category)
             Glide.with(context).load(getImageSrc(data[position].category))
                 .into(binding.imgItemIcon)
-            Log.v("testing", getImageSrc(data[position].category).toString())
 
             binding.itemCheckBox.setOnCheckedChangeListener { _, isChecked ->
                 itemEvent.itemCheckBoxChanged(data[adapterPosition].id, isChecked)
@@ -82,10 +80,14 @@ class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: Item
         notifyItemChanged(position)
     }
 
+    fun addTask(newTask: Task) {
+        data.add(0, newTask)
+        notifyItemInserted(0)
+    }
+
     interface ItemEvent {
         fun itemCheckBoxChanged(taskId: String, newValue: Boolean)
         fun listIsAll(): Boolean
-
         fun onItemLongClicked(task: Task, position: Int)
     }
 

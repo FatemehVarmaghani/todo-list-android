@@ -28,13 +28,13 @@
                 android:fontFamily="@font/primary_bold"
                 android:text="todo list"
                 android:textColor="?attr/colorOnPrimary"
-                android:textSize="20dp"
+                android:textSize="24dp"
                 android:textStyle="bold" />
 
             <ImageView
                 android:id="@+id/btn_add_task"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_gravity="end|center_vertical"
                 android:src="@drawable/ic_add"
                 app:tint="?attr/colorOnPrimary" />
