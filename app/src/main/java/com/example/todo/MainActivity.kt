@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todo.databinding.ActivityMainBinding
 import com.example.todo.databinding.DialogAddTaskBinding
+import com.example.todo.databinding.DialogDeleteTaskBinding
 import com.example.todo.databinding.DialogEditTaskBinding
 
 class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
@@ -217,6 +218,24 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         }
     }
 
+    override fun onItemLongClicked(task: Task, position: Int) {
+        val dialogDeleteTaskBinding = DialogDeleteTaskBinding.inflate(layoutInflater)
+        val dialog = AlertDialog.Builder(this).setView(dialogDeleteTaskBinding.root).create()
+        dialog.show()
+
+        dialogDeleteTaskBinding.txtDeleteTitle.text = "\"${task.title}\""
+
+        dialogDeleteTaskBinding.btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogDeleteTaskBinding.btnDelete.setOnClickListener {
+            taskAdapter.removeTask(position)
+            deleteTask(task)
+            dialog.dismiss()
+        }
+    }
+
     private fun editTask(position: Int, newTask: Task) {
         taskList.forEachIndexed { index, it ->
             if (it.id == newTask.id) {
@@ -355,6 +374,10 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
             binding.recyclerMain.scrollToPosition(0)
         }
         taskList.add(0, newTask)
+    }
+
+    private fun deleteTask(task: Task) {
+        taskList.remove(task)
     }
 
 }

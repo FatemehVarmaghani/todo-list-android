@@ -37,6 +37,11 @@ class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: Item
                 itemEvent.onItemClicked(data[adapterPosition], adapterPosition)
             }
 
+            itemView.setOnLongClickListener {
+                itemEvent.onItemLongClicked(data[adapterPosition], adapterPosition)
+                true
+            }
+
         }
 
     }
@@ -68,7 +73,7 @@ class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: Item
         }
     }
 
-    private fun removeTask(position: Int) {
+    fun removeTask(position: Int) {
         data.removeAt(position)
         notifyItemRemoved(position)
     }
@@ -87,6 +92,7 @@ class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: Item
         fun itemCheckBoxChanged(taskId: String, newValue: Boolean)
         fun listIsAll(): Boolean
         fun onItemClicked(task: Task, position: Int)
+        fun onItemLongClicked(task: Task, position: Int)
     }
 
 }
