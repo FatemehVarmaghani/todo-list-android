@@ -1,7 +1,6 @@
 package com.example.todo
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -34,9 +33,8 @@ class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: Item
                 }
             }
 
-            itemView.setOnLongClickListener {
-                itemEvent.onItemLongClicked(data[adapterPosition], adapterPosition)
-                true
+            itemView.setOnClickListener {
+                itemEvent.onItemClicked(data[adapterPosition], adapterPosition)
             }
 
         }
@@ -88,7 +86,7 @@ class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: Item
     interface ItemEvent {
         fun itemCheckBoxChanged(taskId: String, newValue: Boolean)
         fun listIsAll(): Boolean
-        fun onItemLongClicked(task: Task, position: Int)
+        fun onItemClicked(task: Task, position: Int)
     }
 
 }

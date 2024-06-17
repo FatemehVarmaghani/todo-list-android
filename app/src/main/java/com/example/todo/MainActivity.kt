@@ -6,7 +6,6 @@ import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.ULocale
 import android.os.Bundle
-import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -87,7 +86,14 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
                 false,
                 FITNESS
             ),
-            Task("do the laundry", createId(), "only the white clothes.", "June 13, 2024", false, CHORES),
+            Task(
+                "do the laundry",
+                createId(),
+                "only the white clothes.",
+                "June 13, 2024",
+                false,
+                CHORES
+            ),
             Task(
                 "theme colors",
                 createId(),
@@ -96,7 +102,14 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
                 false,
                 WORK
             ),
-            Task("football", createId(), "enjoy a game with your friends.", "June 13, 2024", false, HOBBY),
+            Task(
+                "football",
+                createId(),
+                "enjoy a game with your friends.",
+                "June 13, 2024",
+                false,
+                HOBBY
+            ),
             Task("wash bathroom", createId(), "my weekly chore!", "June 13, 2024", false, CHORES),
             Task(
                 "take a shower",
@@ -157,7 +170,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         return binding.radioBtnAll.isChecked
     }
 
-    override fun onItemLongClicked(task: Task, position: Int) {
+    override fun onItemClicked(task: Task, position: Int) {
         dialogEditBinding = DialogEditTaskBinding.inflate(layoutInflater)
         val dialog = AlertDialog.Builder(this)
             .setView(dialogEditBinding.root).create()
@@ -295,7 +308,8 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
             if (dialogAddBinding.addTitle.editText!!.text.isNotEmpty() &&
                 dialogAddBinding.addCategory.editText!!.text.isNotEmpty() &&
                 dialogAddBinding.addDate.editText!!.text.isNotEmpty() &&
-                dialogAddBinding.addDescription.editText!!.text.isNotEmpty()) {
+                dialogAddBinding.addDescription.editText!!.text.isNotEmpty()
+            ) {
 
                 val newTask = Task(
                     dialogAddBinding.addTitle.editText!!.text.toString(),
@@ -336,7 +350,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
     }
 
     private fun addTask(newTask: Task) {
-        if(!binding.radioBtnCompleted.isChecked) {
+        if (!binding.radioBtnCompleted.isChecked) {
             taskAdapter.addTask(newTask)
             binding.recyclerMain.scrollToPosition(0)
         }
