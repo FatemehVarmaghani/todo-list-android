@@ -10,12 +10,14 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todo.databinding.ActivityMainBinding
 import com.example.todo.databinding.DialogAddTaskBinding
 import com.example.todo.databinding.DialogDeleteTaskBinding
 import com.example.todo.databinding.DialogEditTaskBinding
+import java.util.UUID
 
 class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
 
@@ -24,7 +26,6 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
     private lateinit var dialogAddBinding: DialogAddTaskBinding
     private lateinit var taskAdapter: TaskAdapter
     private lateinit var taskList: ArrayList<Task>
-    private var freeId = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,11 +36,19 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         setRecycler(taskList.clone() as ArrayList<Task>)
 
         binding.radioGroupMain.setOnCheckedChangeListener { _, _ ->
-            changeList()
+            if (binding.edtSearch.text.isEmpty()) {
+                setRelatedList(taskList.clone() as ArrayList<Task>)
+            } else {
+                handleSearchBox(binding.edtSearch.text.toString())
+            }
         }
 
         binding.btnAddTask.setOnClickListener {
             showAddDialog()
+        }
+
+        binding.edtSearch.addTextChangedListener { text ->
+            handleSearchBox(text.toString())
         }
 
     }
@@ -126,36 +135,38 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
     }
 
     private fun setRecycler(data: ArrayList<Task>) {
+        if(data.isEmpty()) {
+            
+        }
+
         taskAdapter = TaskAdapter(data, this)
         binding.recyclerMain.adapter = taskAdapter
         binding.recyclerMain.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
     }
 
-    private fun filterData(forCompleted: Boolean): ArrayList<Task> {
+    private fun filterData(forCompleted: Boolean, list: ArrayList<Task>): ArrayList<Task> {
 
-        val completedList: ArrayList<Task> = arrayListOf()
-        val pendingList: ArrayList<Task> = arrayListOf()
-
-        taskList.filter {
-            if (it.isCompleted) {
-                completedList.add(it)
-            } else {
-                pendingList.add(it)
-            }
-        }
-
-        return if (forCompleted)
-            completedList
-        else
-            pendingList
+        val (completedList, pendingList) = list.partition { it.isCompleted }
+        return if (forCompleted) ArrayList(completedList) else ArrayList(pendingList)
 
     }
 
-    private fun changeList() {
+    private fun setRelatedList(list: ArrayList<Task>) {
         when {
-            binding.radioBtnAll.isChecked -> setRecycler(taskList.clone() as ArrayList<Task>)
-            binding.radioBtnPending.isChecked -> setRecycler(filterData(false))
-            binding.radioBtnCompleted.isChecked -> setRecycler(filterData(true))
+            binding.radioBtnAll.isChecked -> setRecycler(list)
+            binding.radioBtnPending.isChecked -> setRecycler(filterData(false, list))
+            binding.radioBtnCompleted.isChecked -> setRecycler(filterData(true, list))
+        }
+    }
+
+    private fun handleSearchBox(text: String) {
+        if (text.isNotEmpty()) {
+            val filteredList = taskList.filter {
+                it.title.contains(text)
+            }
+            setRelatedList(filteredList as ArrayList<Task>)
+        } else {
+            setRelatedList(taskList.clone() as ArrayList<Task>)
         }
     }
 
@@ -230,8 +241,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         }
 
         dialogDeleteTaskBinding.btnDelete.setOnClickListener {
-            taskAdapter.removeTask(position)
-            deleteTask(task)
+            deleteTask(task, position)
             dialog.dismiss()
         }
     }
@@ -363,9 +373,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
     }
 
     private fun createId(): String {
-        val newId = freeId
-        freeId++
-        return newId.toString()
+        return UUID.randomUUID().toString()
     }
 
     private fun addTask(newTask: Task) {
@@ -376,7 +384,8 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         taskList.add(0, newTask)
     }
 
-    private fun deleteTask(task: Task) {
+    private fun deleteTask(task: Task, position: Int) {
+        taskAdapter.removeTask(position)
         taskList.remove(task)
     }
 

@@ -1,6 +1,5 @@
 package com.example.todo
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -10,7 +9,7 @@ import com.example.todo.databinding.ItemTaskBinding
 class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: ItemEvent) :
     RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
-    inner class TaskViewHolder(private val binding: ItemTaskBinding, private val context: Context) :
+    inner class TaskViewHolder(private val binding: ItemTaskBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bindData(position: Int) {
@@ -21,7 +20,7 @@ class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: Item
                 binding.itemCheckBox.isChecked = true
             }
 
-            Glide.with(context).load(getImageSrc(data[position].category))
+            Glide.with(itemView.context).load(getImageSrc(data[position].category))
                 .into(binding.imgItemIcon)
 
             binding.itemCheckBox.setOnCheckedChangeListener { _, isChecked ->
@@ -48,7 +47,7 @@ class TaskAdapter(private var data: ArrayList<Task>, private val itemEvent: Item
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val binding = ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return TaskViewHolder(binding, parent.context)
+        return TaskViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
