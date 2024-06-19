@@ -18,6 +18,7 @@ import com.example.todo.databinding.ActivityMainBinding
 import com.example.todo.databinding.DialogAddTaskBinding
 import com.example.todo.databinding.DialogDeleteTaskBinding
 import com.example.todo.databinding.DialogEditTaskBinding
+import java.util.Date
 import java.util.UUID
 
 class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
@@ -53,11 +54,90 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
             handleSearchBox(text.toString())
         }
 
+        binding.btnSortTasks.setOnClickListener {
+            sortTaskList()
+        }
+
     }
 
     private fun initData() {
 
-        taskList = arrayListOf()
+        taskList = arrayListOf(
+            Task(
+                "wash the dishes",
+                createId(),
+                "dishes from lunch are still dirty",
+                "August 8, 2024",
+                true,
+                CHORES
+            ),
+            Task(
+                "homework",
+                createId(),
+                "do the homeworks from english class.",
+                "April 17, 2024",
+                true,
+                EDUCATION
+            ),
+            Task(
+                "upload project to github",
+                createId(),
+                "upload the project to github and write a nice readme for it.",
+                "March 13, 2024",
+                false,
+                WORK
+            ),
+            Task(
+                "salad",
+                createId(),
+                "make a salad for dinner (don't use high fat sauce)",
+                "January 18, 2024",
+                false,
+                HEALTH
+            ),
+            Task(
+                "workout",
+                createId(),
+                "10 lunges\n30 pushups\n10 crunches\n20 squats",
+                "February 25, 2024",
+                false,
+                FITNESS
+            ),
+            Task(
+                "do the laundry",
+                createId(),
+                "only the white clothes.",
+                "December 29, 2023",
+                false,
+                CHORES
+            ),
+            Task(
+                "theme colors",
+                createId(),
+                "choose theme colors for new project.",
+                "June 2, 2024",
+                false,
+                WORK
+            ),
+            Task(
+                "football",
+                createId(),
+                "enjoy a game with your friends.",
+                "June 23, 2024",
+                false,
+                HOBBY
+            ),
+            Task("wash bathroom", createId(), "my weekly chore!", "June 13, 2024", false, CHORES),
+            Task(
+                "take a shower",
+                createId(),
+                "definitely need it after football and washing the bathroom",
+                "June 13, 2024",
+                false,
+                HYGIENE
+            )
+
+        )
 
     }
 
@@ -206,7 +286,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
     }
 
     private fun showCalendarDialog(editText: EditText) {
-        val currentDate = parseFormattedDate(editText.text.toString())
+        val currentDate = parseDateAsInts(editText.text.toString())
         val theYear = currentDate.first
         val theMonth = currentDate.second
         val theDay = currentDate.third
@@ -214,7 +294,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         val dialog = DatePickerDialog(
             this,
             DatePickerDialog.OnDateSetListener { _, newYear, newMonth, newDay ->
-                val formattedDate = getFormattedDate(newYear, newMonth, newDay)
+                val formattedDate = getDateAsString(newYear, newMonth, newDay)
                 if (formattedDate.isNullOrEmpty()) {
                     showToast("set date correctly")
                 } else {
@@ -230,7 +310,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private fun getFormattedDate(year: Int, month: Int, day: Int): String? {
+    private fun getDateAsString(year: Int, month: Int, day: Int): String? {
         val date = Calendar.getInstance().apply {
             set(year, month, day)
         }.time
@@ -239,8 +319,18 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private fun parseFormattedDate(date: String): Triple<Int, Int, Int> {
-        val parsedDate = SimpleDateFormat("MMMM d, yyyy", ULocale.getDefault()).parse(date)
+    private fun parseDateAsDate(date: String): Date? {
+        return try {
+            SimpleDateFormat("MMMM d, yyyy", ULocale.getDefault()).parse(date)
+        } catch (e: Exception) {
+            showToast("couldn't parse date!")
+            null
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun parseDateAsInts(date: String): Triple<Int, Int, Int> {
+        val parsedDate = parseDateAsDate(date)
         val calendar = Calendar.getInstance().apply { time = parsedDate }
 
         val year = calendar.get(Calendar.YEAR)
@@ -306,7 +396,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        editText.setText(getFormattedDate(year, month, day).toString())
+        editText.setText(getDateAsString(year, month, day).toString())
     }
 
     private fun createId(): String {
@@ -328,6 +418,11 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         taskList.remove(task)
 
         checkIfTaskListIsEmpty()
+    }
+
+    private fun sortTaskList() {
+        taskList = ArrayList(taskList.sortedWith(compareBy { parseDateAsDate(it.dueDate) }))
+        setRelatedList(taskList)
     }
 
 }
