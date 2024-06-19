@@ -31,11 +31,11 @@
         app:endIconTint="?attr/colorSecondary">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:focusable="false"
-            android:clickable="false"
-            android:inputType="none"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:inputType="none"
             android:maxLines="1"
             android:textColor="?attr/colorOnSecondary" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -51,10 +51,10 @@
         app:endIconTint="?attr/colorSecondary">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:focusable="false"
-            android:clickable="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
             android:maxLines="1"
             android:textColor="?attr/colorOnSecondary" />
     </com.google.android.material.textfield.TextInputLayout>

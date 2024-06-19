@@ -6,6 +6,7 @@ import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.ULocale
 import android.os.Bundle
+import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
         setContentView(binding.root)
 
         initData()
+        checkIfTaskListIsEmpty()
         setRecycler(taskList.clone() as ArrayList<Task>)
 
         binding.radioGroupMain.setOnCheckedChangeListener { _, _ ->
@@ -55,93 +57,26 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
 
     private fun initData() {
 
-        taskList = arrayListOf(
-            Task(
-                "wash the dishes",
-                createId(),
-                "dishes from lunch are still dirty",
-                "June 13, 2024",
-                true,
-                CHORES
-            ),
-            Task(
-                "homework",
-                createId(),
-                "do the homeworks from english class.",
-                "June 13, 2024",
-                true,
-                EDUCATION
-            ),
-            Task(
-                "upload project to github",
-                createId(),
-                "upload the project to github and write a nice readme for it.",
-                "June 13, 2024",
-                false,
-                WORK
-            ),
-            Task(
-                "salad",
-                createId(),
-                "make a salad for dinner (don't use high fat sauce)",
-                "June 13, 2024",
-                false,
-                HEALTH
-            ),
-            Task(
-                "workout",
-                createId(),
-                "10 lunges\n30 pushups\n10 crunches\n20 squats",
-                "June 13, 2024",
-                false,
-                FITNESS
-            ),
-            Task(
-                "do the laundry",
-                createId(),
-                "only the white clothes.",
-                "June 13, 2024",
-                false,
-                CHORES
-            ),
-            Task(
-                "theme colors",
-                createId(),
-                "choose theme colors for new project.",
-                "June 13, 2024",
-                false,
-                WORK
-            ),
-            Task(
-                "football",
-                createId(),
-                "enjoy a game with your friends.",
-                "June 13, 2024",
-                false,
-                HOBBY
-            ),
-            Task("wash bathroom", createId(), "my weekly chore!", "June 13, 2024", false, CHORES),
-            Task(
-                "take a shower",
-                createId(),
-                "definitely need it after football and washing the bathroom",
-                "June 13, 2024",
-                false,
-                HYGIENE
-            )
-
-        )
+        taskList = arrayListOf()
 
     }
 
     private fun setRecycler(data: ArrayList<Task>) {
-        if(data.isEmpty()) {
-            
-        }
-
         taskAdapter = TaskAdapter(data, this)
         binding.recyclerMain.adapter = taskAdapter
         binding.recyclerMain.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+    }
+
+    private fun checkIfTaskListIsEmpty(): Boolean {
+        return if (taskList.isEmpty()) {
+            binding.recyclerMain.visibility = View.GONE
+            binding.txtNoTask.visibility = View.VISIBLE
+            true
+        } else {
+            binding.txtNoTask.visibility = View.GONE
+            binding.recyclerMain.visibility = View.VISIBLE
+            false
+        }
     }
 
     private fun filterData(forCompleted: Boolean, list: ArrayList<Task>): ArrayList<Task> {
@@ -152,10 +87,12 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
     }
 
     private fun setRelatedList(list: ArrayList<Task>) {
-        when {
-            binding.radioBtnAll.isChecked -> setRecycler(list)
-            binding.radioBtnPending.isChecked -> setRecycler(filterData(false, list))
-            binding.radioBtnCompleted.isChecked -> setRecycler(filterData(true, list))
+        if (!checkIfTaskListIsEmpty()) {
+            when {
+                binding.radioBtnAll.isChecked -> setRecycler(list)
+                binding.radioBtnPending.isChecked -> setRecycler(filterData(false, list))
+                binding.radioBtnCompleted.isChecked -> setRecycler(filterData(true, list))
+            }
         }
     }
 
@@ -382,11 +319,15 @@ class MainActivity : AppCompatActivity(), TaskAdapter.ItemEvent {
             binding.recyclerMain.scrollToPosition(0)
         }
         taskList.add(0, newTask)
+
+        checkIfTaskListIsEmpty()
     }
 
     private fun deleteTask(task: Task, position: Int) {
         taskAdapter.removeTask(position)
         taskList.remove(task)
+
+        checkIfTaskListIsEmpty()
     }
 
 }
